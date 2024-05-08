@@ -4,9 +4,11 @@ from pydantic import BaseModel
 from datetime import date
 
 from app.bookings.router import router as router_bookings
+from app.users.router import router as rouser_users
 
 app = FastAPI(title='Tranding App')
 
+app.include_router(rouser_users)
 app.include_router(router_bookings)
 
 

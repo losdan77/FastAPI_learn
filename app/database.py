@@ -6,7 +6,7 @@ from app.config import settings
 engine = create_async_engine(settings.DATABASE_URL)
 
 async_session_maker = sessionmaker(engine,
-                                   calss_=AsyncSession,
+                                   class_=AsyncSession,
                                    expire_on_commit=False)
 
 class Base(DeclarativeBase):
