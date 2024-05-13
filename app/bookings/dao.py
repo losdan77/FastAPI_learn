@@ -3,7 +3,7 @@ from datetime import date
 
 from app.dao.base import BaseDAO
 from app.bookings.models import Bookings
-from app.hotels.models import Rooms
+from app.hotels.models import Rooms, Hotels
 from app.database import async_session_maker
 
 
@@ -85,3 +85,5 @@ class BookingsDAO(BaseDAO):
                 return new_booking.scalar()
             else:
                 return None    
+            
+    

@@ -29,3 +29,8 @@ RoomCannotBeBooked = HTTPException(
     status_code=status.HTTP_409_CONFLICT,
     detail='Не осталось свободных номеров',   
 )
+
+CannotDeleteBookingExeption = HTTPException(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail='Не получилось удалить бронирование'
+)
