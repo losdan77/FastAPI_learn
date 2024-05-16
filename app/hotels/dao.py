@@ -18,22 +18,22 @@ class HotelsDAO(BaseDAO):
         async with async_session_maker() as session:
            
             query = f'''
-            select hotels.id, hotels.name, hotels.location, hotels.services,
-            hotels.rooms_quality, hotels.image_id,
-            (hotels.rooms_quality - (select count(bookings.id)
+            with rooms_left as (select rooms.hotel_id, count(bookings.id) as rooms_bron
             from bookings, rooms
             where bookings.room_id = rooms.id and 
             ((bookings.date_from>='{date_from}' and bookings.date_from<'{date_to}')
-            or (bookings.date_from<='{date_from}' and bookings.date_to>='{date_to}')
-            or (bookings.date_to>'{date_from}' and bookings.date_to<='{date_to}'))
-            and rooms.hotel_id in (select id
+            or (bookings.date_from<='{date_from}' and bookings.date_to>='{date_from}')
+            or (bookings.date_to>'{date_from}' and bookings.date_to<='{date_from}'))
+            and rooms.hotel_id in (select id from hotels where location like '%{location}%')
+            group by rooms.hotel_id
+            )
+            select hotels.id, hotels.name, hotels.location,
+                    hotels.services, hotels.rooms_quality, hotels.image_id,
+                    (hotels.rooms_quality - coalesce  (rooms_left.rooms_bron, 0)) as rooms_left		
             from hotels
-            where location like '{location}%')
-            )) as rooms_left
-            from bookings, hotels, rooms
-            where (bookings.room_id = rooms.id and rooms.hotel_id = hotels.id)
-            and location like '{location}%'
-            group by hotels.id
+            left outer join rooms_left
+            on hotels.id = rooms_left.hotel_id
+            where hotels.location like '%{location}%'
             '''
            
             # query = select(Hotels.id, Hotels.name, Hotels.location,
