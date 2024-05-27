@@ -1,9 +1,11 @@
-#uvicorn main:app --reload
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Query, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import date
+import asyncio
 
 from app.bookings.router import router as router_bookings
 from app.users.router import router as rouser_users
@@ -13,7 +15,30 @@ from app.hotels.rooms.router import router as router_rooms
 from app.pages.router import router as router_pages
 from app.images.router import router as router_images
 
-app = FastAPI(title='Tranding App')
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
+
+from redis import asyncio as aioredis
+
+
+async def get_cache():
+    '''Функция для постоянного выполнения фоновых задач,
+    в асинхронном режиме'''
+    while True:
+        print('all correct!')
+        await asyncio.sleep(60*5)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    redis = aioredis.from_url("redis://localhost:6379")
+    FastAPICache.init(RedisBackend(redis), prefix="cache")
+    asyncio.create_task(get_cache())
+    yield
+    
+
+app = FastAPI(title='Tranding App', lifespan=lifespan)
 
 app.mount('/static', StaticFiles(directory='app/static'), 'static')
 
@@ -49,6 +74,7 @@ def hello() -> str:
 # def hotels(search_args: Hotels_args = Depends()):
     
 #     return search_args
+
 
 origins = [
     'http://localhost:8000',

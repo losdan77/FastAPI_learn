@@ -1,4 +1,4 @@
-from sqlalchemy import select, func, and_, or_, insert
+from sqlalchemy import select, func, and_, or_, insert, text
 from datetime import date
 
 from app.dao.base import BaseDAO
@@ -87,3 +87,18 @@ class BookingsDAO(BaseDAO):
                 return None    
             
     
+    @classmethod
+    async def check_bookings(cls,
+                             date_from: date):
+        async with async_session_maker() as session:
+            query = f'''select users.email, bookings.date_from,
+                            bookings.date_to, hotels."name"  
+                        from bookings, users, hotels, rooms
+                        where bookings.user_id = users.id and
+                            hotels.id = rooms.hotel_id and
+                            bookings.room_id = rooms.id and
+                            bookings.date_from = '{date_from}'
+                    '''
+
+            result = await session.execute(text(query))
+            return result.mappings().all()
