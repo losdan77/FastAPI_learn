@@ -13,12 +13,12 @@ celery = Celery(
 celery.conf.beat_schedule = {
     'Booking_for_tomorrow': {
         'task': 'booking_for_tomorrow',
-        'schedule': 20, #seconds
+        'schedule': 30, #seconds
         #'schedule': crontab(minute='10', hour='9'), #по нулевому меридиану время
     },
     'Booking_for_3_days': {
         'task': 'booking_for_3_days',
-        'schedule': 20, #seconds
+        'schedule': 45, #seconds
         #'schedule': crontab(minute='30', hour='15'), #по нулевому меридиану время
     }
 }

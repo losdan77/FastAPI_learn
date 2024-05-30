@@ -3,9 +3,14 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.config import settings
 
-engine = create_async_engine(settings.DATABASE_URL)
+from sqlalchemy import NullPool
 
-async_session_maker = sessionmaker(engine,
+DATABASE_PARAMS = {"poolclass": NullPool}
+
+engine_nullpool = create_async_engine(settings.DATABASE_URL,
+                                        **DATABASE_PARAMS)
+
+async_session_maker = sessionmaker(engine_nullpool,
                                    class_=AsyncSession,
                                    expire_on_commit=False)
 

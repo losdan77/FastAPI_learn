@@ -5,6 +5,7 @@ from pydantic import EmailStr
 
 from app.users.dao import UsersDAO
 from app.config import settings
+from app.exeptions import NoAccess
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -27,3 +28,10 @@ async def authenticate_user(email: EmailStr, password: str):
     user = await UsersDAO.find_one_or_none(email=email)
     if user and verify_password(password, user.hashed_password):
         return user
+    
+
+async def authenticate_admin(email: EmailStr, password: str):
+    user = await UsersDAO.find_one_or_none(email=email)
+    if user and verify_password(password, user.hashed_password):# and str(user.role)=='admin':
+        return user
+    

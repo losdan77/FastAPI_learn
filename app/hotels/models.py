@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, JSON, ForeignKey
+from sqlalchemy import JSON, ForeignKey
 from app.database import Base
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 class Hotels(Base):
     __tablename__ = 'hotels'
@@ -12,6 +12,11 @@ class Hotels(Base):
     rooms_quality: Mapped[int] = mapped_column(nullable=False)
     image_id: Mapped[int] = mapped_column(nullable=True)
 
+    room = relationship('Rooms',
+                        back_populates='hotel')
+    
+    def __str__(self):
+        return f'{self.name}'
 
 class Rooms(Base):
     __tablename__ = 'rooms'
@@ -25,3 +30,9 @@ class Rooms(Base):
     services: Mapped[list[str]] = mapped_column(JSON, nullable=True)
     quality: Mapped[int] = mapped_column(nullable=False)
     image_id: Mapped[int]  = mapped_column(nullable=True)
+
+    booking: Mapped[list['Bookings']] =  relationship(back_populates='room')
+    hotel: Mapped[list['Hotels']] = relationship(back_populates='room')
+    
+    def __str__(self):
+        return f'{self.name}'

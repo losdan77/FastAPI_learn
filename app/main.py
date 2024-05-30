@@ -21,6 +21,11 @@ from fastapi_cache.decorator import cache
 
 from redis import asyncio as aioredis
 
+from sqladmin import Admin
+from app.admin.auth import authentication_backend
+from app.database import engine_nullpool
+from app.admin.view import UserAdmin, BookingAdmin, HotelsAdmin, RoomsAdmin
+
 
 async def get_cache():
     '''Функция для постоянного выполнения фоновых задач,
@@ -74,6 +79,14 @@ def hello() -> str:
 # def hotels(search_args: Hotels_args = Depends()):
     
 #     return search_args
+
+
+admin = Admin(app, engine_nullpool, authentication_backend=authentication_backend)
+
+admin.add_view(UserAdmin)
+admin.add_view(BookingAdmin)
+admin.add_view(HotelsAdmin)
+admin.add_view(RoomsAdmin)
 
 
 origins = [
