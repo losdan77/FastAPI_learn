@@ -34,7 +34,7 @@ async def get_current_user(token: str = Depends(get_token)):
     if not user:
         raise UncorectTokenExeption
     
-    user = user['Users']
+    #user = user['Users']
     user_dict = {'id': user.id,
                  'email': user.email}
 

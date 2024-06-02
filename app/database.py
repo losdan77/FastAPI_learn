@@ -5,10 +5,15 @@ from app.config import settings
 
 from sqlalchemy import NullPool
 
-DATABASE_PARAMS = {"poolclass": NullPool}
+if settings.MODE == 'TEST':
+    DATABASE_URL = settings.TEST_DATABASE_URL
+    DATABASE_PARAMS = {"poolclass": NullPool}
+else:
+    DATABASE_URL = settings.DATABASE_URL
+    DATABASE_PARAMS = {"poolclass": NullPool}
 
-engine_nullpool = create_async_engine(settings.DATABASE_URL,
-                                        **DATABASE_PARAMS)
+engine_nullpool = create_async_engine(DATABASE_URL,
+                                      **DATABASE_PARAMS)
 
 async_session_maker = sessionmaker(engine_nullpool,
                                    class_=AsyncSession,

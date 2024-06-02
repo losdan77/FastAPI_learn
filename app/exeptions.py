@@ -39,3 +39,8 @@ NoAccess = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail='Нет доступа',
 )
+
+LogicDateException = HTTPException(
+    status_code=status.HTTP_400_BAD_REQUEST,
+    detail='Дата выезда должна быть больше даты заезда'
+)

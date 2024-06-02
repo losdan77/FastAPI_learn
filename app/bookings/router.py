@@ -6,7 +6,7 @@ from app.bookings.dao import BookingsDAO
 from app.bookings.schemas import SBooking
 from app.users.models import Users
 from app.users.dependencies import get_current_user
-from app.exeptions import RoomCannotBeBooked, CannotDeleteBookingExeption
+from app.exeptions import RoomCannotBeBooked, CannotDeleteBookingExeption, LogicDateException
 from app.tasks.tasks import send_booking_confirm_email
 
 router = APIRouter(
@@ -28,6 +28,8 @@ async def add_bookings(room_id: int,
     booking = await BookingsDAO.add(user['id'], room_id, date_from, date_to)
     if not booking:
         raise RoomCannotBeBooked
+    if date_from>=date_to:
+        raise LogicDateException
     booking_dict = parse_obj_as(SBooking, booking).dict()
     send_booking_confirm_email.delay(booking_dict, user['email'])
     return booking_dict
