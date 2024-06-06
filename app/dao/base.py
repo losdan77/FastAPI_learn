@@ -47,3 +47,10 @@ class BaseDAO:
             else:
                 return None
             
+    @classmethod
+    async def import_fom_csv(cls, table_name: str, file_name: str):
+        async with async_session_maker() as session:
+            query_import = f"COPY {table_name} FROM /{file_name} DELIMITER ',' CSV HEADER"
+            await session.execute(query_import)
+            await session.commit()
+            return 'successful'

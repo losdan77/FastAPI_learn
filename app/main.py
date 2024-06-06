@@ -1,16 +1,22 @@
+import sentry_sdk
+
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Query, Depends
+from fastapi import FastAPI, Query, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import date
 import asyncio
 
+from app.config import settings
+
 from app.bookings.router import router as router_bookings
 from app.users.router import router as rouser_users
 from app.hotels.router import router as router_hotels
 from app.hotels.rooms.router import router as router_rooms
+
+from app.imports.router import router as router_import
 
 from app.pages.router import router as router_pages
 from app.images.router import router as router_images
@@ -26,6 +32,8 @@ from app.admin.auth import authentication_backend
 from app.database import engine_nullpool
 from app.admin.view import UserAdmin, BookingAdmin, HotelsAdmin, RoomsAdmin
 
+from app.logger import logger
+import time
 
 async def get_cache():
     '''Функция для постоянного выполнения фоновых задач,
@@ -37,11 +45,18 @@ async def get_cache():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    redis = aioredis.from_url("redis://localhost:6379")
+    redis = aioredis.from_url(f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}')
     FastAPICache.init(RedisBackend(redis), prefix="cache")
     asyncio.create_task(get_cache())
     yield
-    
+
+
+sentry_sdk.init(
+    dsn=settings.SENTRY_URL,
+    traces_sample_rate=1.0,
+    profiles_sample_rate=1.0,
+) 
+
 
 app = FastAPI(title='Tranding App', lifespan=lifespan)
 
@@ -51,6 +66,8 @@ app.include_router(rouser_users)
 app.include_router(router_bookings)
 app.include_router(router_hotels)
 app.include_router(router_rooms)
+
+app.include_router(router_import)
 
 app.include_router(router_pages)
 app.include_router(router_images)
@@ -104,3 +121,13 @@ app.add_middleware(
                    'Access-Control-Allow-Origin',
                    'Authorization'],
 )
+
+@app.middleware('http')
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    logger.info('Request handling time', extra={
+        'process_time': round(process_time, 4)
+    })
+    return response
