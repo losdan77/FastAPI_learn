@@ -8,5 +8,5 @@ class SUserAuth(BaseModel):
 class SUserRegister(BaseModel):
     email: EmailStr
     password: str
-    role: str
+    
 

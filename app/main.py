@@ -1,4 +1,5 @@
 import sentry_sdk
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from contextlib import asynccontextmanager
 
@@ -61,6 +62,14 @@ sentry_sdk.init(
 app = FastAPI(title='Tranding App', lifespan=lifespan)
 
 app.mount('/static', StaticFiles(directory='app/static'), 'static')
+
+
+instrumentator = Instrumentator(
+    should_group_status_codes=False,
+    excluded_handlers=['.*admin.*', '/metrics'],
+)
+instrumentator.instrument(app).expose(app)
+
 
 app.include_router(rouser_users)
 app.include_router(router_bookings)

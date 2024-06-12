@@ -17,9 +17,9 @@ async def register_user(user_data: SUserRegister):
     if existing_user:
         raise ExistingUserExeption
     hashed_password = get_password_hash(user_data.password)
-    if not user_data.role:
-        user_data.role = None
-    await UsersDAO.add(email=user_data.email, hashed_password=hashed_password, role=user_data.role)
+    # if not user_data.role:
+    #     user_data.role = None
+    await UsersDAO.add(email=user_data.email, hashed_password=hashed_password, role=None)#user_data.role)
 
 
 @router.post('/login')

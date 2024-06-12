@@ -11,12 +11,11 @@ router = APIRouter(
 
 @router.post('/{table_name}')
 async def import_data_from_csv(table_name: str, file: UploadFile):
-    #result_import = await BaseDAO.import_fom_csv(table_name, file)
-    #return result_import
     if file.content_type == 'text/csv':
         file_csv = await file.read()
         with open ('app/csv/file.csv', 'wb') as f:
             f.write(file_csv)
-        return {'filename': file.filename}
+        result_import = await BaseDAO.import_fom_csv(table_name)
+        return result_import
     else:
         return 'Неверный формат файла'

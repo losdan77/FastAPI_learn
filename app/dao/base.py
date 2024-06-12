@@ -1,6 +1,6 @@
 from app.database import async_session_maker
 
-from sqlalchemy import select, insert, delete
+from sqlalchemy import select, insert, delete, text
 
 class BaseDAO:
     model = None
@@ -48,9 +48,9 @@ class BaseDAO:
                 return None
             
     @classmethod
-    async def import_fom_csv(cls, table_name: str, file_name: str):
+    async def import_fom_csv(cls, table_name: str):
         async with async_session_maker() as session:
-            query_import = f"COPY {table_name} FROM /{file_name} DELIMITER ',' CSV HEADER"
-            await session.execute(query_import)
+            query_import = f"COPY {table_name} FROM '/home/booking_app/app/csv/file.csv' DELIMITER ',' CSV HEADER"
+            await session.execute(text(query_import))
             await session.commit()
             return 'successful'
