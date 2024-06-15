@@ -13,7 +13,7 @@ COPY . .
 RUN chmod a+x /booking_app/docker/*.sh
 
 #для деплоя на хостинге
-RUN alembic upgrade head
+#RUN alembic upgrade head
 
 CMD [ "gunicorn", "app.main:app", "--workers", "1", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind=0.0.0.0:8000" ]
 

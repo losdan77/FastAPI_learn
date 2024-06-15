@@ -117,6 +117,7 @@ admin.add_view(RoomsAdmin)
 
 origins = [
     'http://localhost:8000',
+    '*',
 ]
 
 app.add_middleware(
